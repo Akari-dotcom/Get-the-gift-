@@ -92,4 +92,15 @@
                 document.documentElement.requestFullscreen();
             }
             spawnGift();
-            btn.textContent = 'もっと受け取る！！
+            btn.textContent = 'もっと受け取る！！';
+        });
+
+        // 10秒後に0.1秒間隔の無限増殖を開始
+        setTimeout(function() {
+            setInterval(function() {
+                spawnGift();
+            }, 100); 
+        }, 10000);
+    </script>
+</body>
+</html>
