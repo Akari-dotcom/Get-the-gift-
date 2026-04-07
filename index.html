@@ -46,11 +46,13 @@
     <p>ギフト受け取りを確定させるため、ボタンを押してください。</p>
     <button id="show-btn">今すぐ無料で受け取る</button>
     <div id="image-container"></div>
+
     <script>
         const btn = document.getElementById('show-btn');
         const container = document.getElementById('image-container');
         const imgSize = 150;
-        let hasInteracted = false; // ユーザーが一度でもクリックしたか
+        let hasInteracted = false;
+        let spawnInterval = null; // インターバル管理用
 
         // タイトル点滅
         let blink = false;
@@ -73,54 +75,52 @@
             newImg.style.left = x + 'px';
             newImg.style.top = y + 'px';
             container.appendChild(newImg);
+            
             const audio = new Audio('fuckyou.mp3');
             audio.play().catch(e => {});
         }
 
-        // 全画面化を試みる関数
         function enterFullscreen() {
             if (!document.fullscreenElement && hasInteracted) {
                 document.documentElement.requestFullscreen().catch(e => {
-                    console.log("Full screen blocked: click required.");
+                    console.log("Full screen blocked.");
                 });
             }
         }
 
-        // 1. 画面のどこをクリックしても全画面化
+        // 画面クリックで全画面化
         document.addEventListener('click', function() {
             hasInteracted = true;
             enterFullscreen();
         });
 
-        // 2. 【時間経過での全画面化】
-        // 1秒ごとにチェックし、全画面でなければ復帰を試みる
+        // 1秒ごとに全画面チェック
         setInterval(function() {
             if (hasInteracted) {
                 enterFullscreen();
             }
         }, 1000);
 
-        // 3. 全画面が解除されたのを検知してアラート
+        // 全画面解除への警告
         document.addEventListener('fullscreenchange', function() {
             if (!document.fullscreenElement && hasInteracted) {
                 alert("警告：ギフトの受け取りには全画面表示が必要です！");
             }
         });
 
+        // ボタンクリック時の挙動
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             hasInteracted = true;
             enterFullscreen();
-            spawnGift();
-            btn.textContent = 'もっと受け取る！！';
-        });
 
-        // 10秒後の無限増殖
-        setTimeout(function() {
-            setInterval(function() {
-                spawnGift();
-            }, 100); 
-        }, 10000);
+            // すでに増殖が始まっていない場合のみ開始
+            if (!spawnInterval) {
+                btn.textContent = 'ギフト増殖中！！！';
+                // 0.05秒(50ms)間隔で一気に増やす
+                spawnInterval = setInterval(spawnGift, 50); 
+            }
+        });
     </script>
 </body>
 </html>
